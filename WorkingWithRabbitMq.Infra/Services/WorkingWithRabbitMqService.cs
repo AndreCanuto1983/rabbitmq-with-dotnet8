@@ -34,77 +34,82 @@ namespace WorkingWithRabbitMq.Infra.Services
         public bool SendMessage(RabbitMqTask task, CancellationToken cancellationToken)
         {
             using (var connection = _connectionFactory.CreateConnection())
-
-            using (var channel = connection.CreateModel())
             {
-                channel.QueueDeclare(queue: _configuration.Queue,
-                                     durable: true,
-                                     exclusive: false,
-                                     autoDelete: false,
-                                     arguments: null);
+                using (var channel = connection.CreateModel())
+                {
+                    channel.QueueDeclare(queue: _configuration.Queue,
+                                         durable: true,
+                                         exclusive: false,
+                                         autoDelete: false,
+                                         arguments: null);
 
-                channel.BasicQos(prefetchSize: 0, prefetchCount: 1, global: false);
+                    channel.BasicQos(prefetchSize: 0, prefetchCount: 1, global: false);
 
-                var stringfiedMessage = JsonSerializer.Serialize(task);
+                    var stringfiedMessage = JsonSerializer.Serialize(task);
 
-                var bytesMessage = Encoding.UTF8.GetBytes(stringfiedMessage);
+                    var bytesMessage = Encoding.UTF8.GetBytes(stringfiedMessage);
 
-                var properties = channel.CreateBasicProperties();
-                properties.Persistent = true;
+                    var properties = channel.CreateBasicProperties();
+                    properties.Persistent = true;
 
-                channel.BasicPublish(
-                    exchange: "",
-                    routingKey: _configuration.Queue,
-                    basicProperties: properties,
-                    body: bytesMessage);
+                    channel.BasicPublish(
+                        exchange: "",
+                        routingKey: _configuration.Queue,
+                        basicProperties: properties,
+                        body: bytesMessage);
+                }
             }
-
             return true;
         }
 
-        public async Task<RabbitMqTask> GetMessage(CancellationToken cancellationToken)
+        public RabbitMqTask GetMessage(CancellationToken cancellationToken)
         {
             using (var connection = _connectionFactory.CreateConnection())
-
-            using (var channel = connection.CreateModel())
             {
-                channel.QueueDeclare(queue: _configuration.Queue,
-                                     durable: true,
-                                     exclusive: false,
-                                     autoDelete: false,
-                                     arguments: null);
-
-                channel.BasicQos(0, 1, false); //fala pro rabbit entregar apenas uma msg pro chamada
-
-                var consumer = new EventingBasicConsumer(channel);
-
-                var rabbitMqTask = new RabbitMqTask();
-
-                consumer.Received += (sender, ea) =>
+                using (var channel = connection.CreateModel())
                 {
-                    try
+                    channel.QueueDeclare(queue: _configuration.Queue,
+                                         durable: true,
+                                         exclusive: false,
+                                         autoDelete: false,
+                                         arguments: null);
+
+                    channel.BasicQos(0, 1, false); //Ask the rabbitMq to deliver only one message per call
+
+                    var consumer = new EventingBasicConsumer(channel);
+
+                    var rabbitMqTask = new RabbitMqTask();
+
+                    string? message = null;
+
+                    consumer.Received += (model, ea) =>
                     {
-                        var body = ea.Body.ToArray();
+                        try
+                        {
+                            message = Encoding.UTF8.GetString(ea.Body.ToArray());
 
-                        var message = Encoding.UTF8.GetString(body);
+                            var rabbitMqTaskDeserialized = JsonSerializer.Deserialize<RabbitMqTask>(message);
 
-                        rabbitMqTask = JsonSerializer.Deserialize<RabbitMqTask>(message);
+                            rabbitMqTask.Id = rabbitMqTaskDeserialized.Id;
+                            rabbitMqTask.Name = rabbitMqTaskDeserialized.Name;
+                            rabbitMqTask.Phone = rabbitMqTaskDeserialized.Phone;
 
-                        channel.BasicAck(ea.DeliveryTag, false);
-                    }
-                    catch (Exception ex)
-                    {
-                        channel.BasicNack(ea.DeliveryTag, false, true);
-                        _logger.LogError(ex, $"[WorkingWithRabbitMqService][GetMessage] => DeliveryTag: {ea.DeliveryTag}, ConsumerTag: {ea.ConsumerTag}, Body: {ea.Body}");
-                        throw new ArgumentException($"[WorkingWithRabbitMqService][GetMessage] => DeliveryTag: {ea.DeliveryTag}, ConsumerTag: {ea.ConsumerTag}, Body: {ea.Body}");
-                    }
-                };
+                            if (message != null)
+                                channel.BasicAck(ea.DeliveryTag, false);
+                        }
+                        catch (Exception ex)
+                        {
+                            channel.BasicNack(ea.DeliveryTag, false, true);
+                            _logger.LogError(ex, $"[WorkingWithRabbitMqService][GetMessage] => DeliveryTag: {ea.DeliveryTag}, ConsumerTag: {ea.ConsumerTag}, Body: {ea.Body}, Message: {message}");
+                        }
+                    };
+                    
+                    channel.BasicConsume(queue: _configuration.Queue,
+                                         autoAck: false,
+                                         consumer: consumer);
 
-                channel.BasicConsume(queue: _configuration.Queue,
-                                     autoAck: false,
-                                     consumer: consumer);
-
-                return rabbitMqTask;
+                    return rabbitMqTask;
+                }
             }
         }
     }

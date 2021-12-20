@@ -29,10 +29,10 @@ namespace ProjectWorkingWithRabbitMq.Controllers
 
             var response = _workingWithRabbitMqService.SendMessage(task, cancellationToken);
 
-            if (response == null)
-                return BadRequest();
+            if (!response)
+                throw new ArgumentException ("Unable to insert in queue");
 
-            return Created("", response);
+            return Created("", "");
         }
 
         [HttpGet]
@@ -46,7 +46,7 @@ namespace ProjectWorkingWithRabbitMq.Controllers
             if (response == null)
                 return NotFound();
 
-            return Ok(response.Result);
+            return Ok(response);
         }
     }
 }
