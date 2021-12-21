@@ -7,15 +7,12 @@ namespace ProjectWorkingWithRabbitMq.Controllers
     [ApiController]
     [Route("[controller]")]
     public class WorkingWithRabbitMqController : ControllerBase
-    {    
-        private readonly ILogger<WorkingWithRabbitMqController> _logger;        
+    {        
         private readonly IWorkingWithRabbitMqService _workingWithRabbitMqService;        
 
-        public WorkingWithRabbitMqController(
-            ILogger<WorkingWithRabbitMqController> logger, 
+        public WorkingWithRabbitMqController(      
             IWorkingWithRabbitMqService workingWithRabbitMqService)
-        {
-            _logger = logger;
+        {            
             _workingWithRabbitMqService = workingWithRabbitMqService;
         }
 
