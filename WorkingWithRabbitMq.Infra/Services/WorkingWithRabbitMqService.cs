@@ -65,7 +65,7 @@ namespace WorkingWithRabbitMq.Infra.Services
             catch (Exception ex)
             {
                 _logger.LogError(ex, "[WorkingWithRabbitMqService][SendMessage]");
-                throw new ArgumentException("Error trying to send message to queue", ex);
+                throw;
             }
         }
 
@@ -128,7 +128,7 @@ namespace WorkingWithRabbitMq.Infra.Services
             catch (Exception ex)
             {
                 _logger.LogError(ex, "[WorkingWithRabbitMqService][GetMessage]");
-                throw new ArgumentException("Error trying to fetch message from queue", ex);
+                throw;
             }            
         }
     }

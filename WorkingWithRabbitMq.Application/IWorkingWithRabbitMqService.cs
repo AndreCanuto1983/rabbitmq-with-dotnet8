@@ -4,7 +4,7 @@ namespace WorkingWithRabbitMq.Application
 {
     public interface IWorkingWithRabbitMqService
     {
-        bool SendMessage(RabbitMqTask task);
+        void SendMessage(RabbitMqTask task);
         RabbitMqTask GetMessage();
     }
 }
