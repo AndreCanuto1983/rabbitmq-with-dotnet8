@@ -3,7 +3,7 @@ using WorkingWithRabbitMq.Infra.Services;
 
 namespace WorkingWithRabbitMq.Svc.Configurations
 {
-    public static class ConfigurateDependencyInjection
+    public static class DependencyInjection
     {
         public static void Configurations(IServiceCollection services)
         {            

@@ -2,7 +2,7 @@
 
 namespace WorkingWithRabbitMq.Svc.Configurations
 {
-    public static class ConfigurateRabbitMq
+    public static class RabbitMq
     {
         public static void Configurations(WebApplicationBuilder builder)
         {

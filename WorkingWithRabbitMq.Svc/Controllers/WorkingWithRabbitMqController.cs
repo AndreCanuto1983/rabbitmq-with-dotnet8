@@ -10,8 +10,7 @@ namespace ProjectWorkingWithRabbitMq.Controllers
     {        
         private readonly IWorkingWithRabbitMqService _workingWithRabbitMqService;        
 
-        public WorkingWithRabbitMqController(      
-            IWorkingWithRabbitMqService workingWithRabbitMqService)
+        public WorkingWithRabbitMqController(IWorkingWithRabbitMqService workingWithRabbitMqService)
         {            
             _workingWithRabbitMqService = workingWithRabbitMqService;
         }
