@@ -19,15 +19,13 @@ namespace ProjectWorkingWithRabbitMq.Controllers
         [HttpPost]
         [ProducesResponseType(typeof(IActionResult), StatusCodes.Status201Created)]
         [ProducesResponseType(typeof(IActionResult), StatusCodes.Status400BadRequest)]
-        public IActionResult Set(RabbitMqTask task, CancellationToken cancellationToken)
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public IActionResult Set(RabbitMqTask task)
         {            
             if (task.IsValid())
                 return BadRequest();
 
-            var response = _workingWithRabbitMqService.SendMessage(task, cancellationToken);
-
-            if (!response)
-                throw new ArgumentException ("Unable to insert in queue");
+            _workingWithRabbitMqService.SendMessage(task);
 
             return Created("", "");
         }
@@ -36,9 +34,10 @@ namespace ProjectWorkingWithRabbitMq.Controllers
         [ProducesResponseType(typeof(RabbitMqTask), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(IActionResult), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(IActionResult), StatusCodes.Status404NotFound)]
-        public IActionResult Get(CancellationToken cancellationToken)
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public IActionResult Get()
         {
-            var response = _workingWithRabbitMqService.GetMessage(cancellationToken);
+            var response = _workingWithRabbitMqService.GetMessage();
 
             if (response == null)
                 return NotFound();
