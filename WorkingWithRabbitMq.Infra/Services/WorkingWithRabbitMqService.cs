@@ -13,21 +13,21 @@ namespace WorkingWithRabbitMq.Infra.Services
     public class WorkingWithRabbitMqService : IWorkingWithRabbitMqService
     {
         private readonly ConnectionFactory _connectionFactory;
-        private readonly RabbitMqConfiguration _configuration;
+        private readonly IOptions<RabbitMqConfiguration> _options;
         private readonly ILogger<IWorkingWithRabbitMqService> _logger;
 
         public WorkingWithRabbitMqService(
             IOptions<RabbitMqConfiguration> options,
             ILogger<IWorkingWithRabbitMqService> logger)
         {
-            _configuration = options.Value;
+            _options = options;
             _logger = logger;
 
             _connectionFactory = new ConnectionFactory
             {
-                HostName = _configuration.Host,
-                UserName = _configuration.Username,
-                Password = _configuration.Password
+                HostName = _options.Value.Host,
+                UserName = _options.Value.Username,
+                Password = _options.Value.Password
             };
         }
 
@@ -39,7 +39,7 @@ namespace WorkingWithRabbitMq.Infra.Services
                 {
                     using (var channel = connection.CreateModel())
                     {
-                        channel.QueueDeclare(queue: _configuration.Queue,
+                        channel.QueueDeclare(queue: _options.Value.Queue,
                                              durable: true,
                                              exclusive: false,
                                              autoDelete: false,
@@ -56,7 +56,7 @@ namespace WorkingWithRabbitMq.Infra.Services
 
                         channel.BasicPublish(
                             exchange: "",
-                            routingKey: _configuration.Queue,
+                            routingKey: _options.Value.Queue,
                             basicProperties: properties,
                             body: bytesMessage);
                     }
@@ -77,7 +77,7 @@ namespace WorkingWithRabbitMq.Infra.Services
                 {
                     using (var channel = connection.CreateModel())
                     {
-                        channel.QueueDeclare(queue: _configuration.Queue,
+                        channel.QueueDeclare(queue: _options.Value.Queue,
                                              durable: true,
                                              exclusive: false,
                                              autoDelete: false,
@@ -117,7 +117,7 @@ namespace WorkingWithRabbitMq.Infra.Services
                             }
                         };
 
-                        channel.BasicConsume(queue: _configuration.Queue,
+                        channel.BasicConsume(queue: _options.Value.Queue,
                                              autoAck: false,
                                              consumer: consumer);
 
