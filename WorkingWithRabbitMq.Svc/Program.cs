@@ -3,9 +3,9 @@ using WorkingWithRabbitMq.Svc.Configurations;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-RabbitMq.Configurations(builder);
-DependencyInjection.Configurations(builder.Services);
-ServiceExtension.Configurations(builder.Services);
+builder.RabbitMqSettings();
+builder.Services.DependencyInjectionSettings();
+builder.Services.ServiceExtensionSettings();
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
