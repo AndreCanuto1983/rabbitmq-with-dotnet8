@@ -2,6 +2,8 @@ using WorkingWithRabbitMq.Svc.Configurations;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Services.AddHealthChecks();
+
 // Add services to the container.
 builder.RabbitMqSettings();
 builder.Services.DependencyInjectionSettings();
@@ -21,6 +23,8 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
+app.MapHealthChecks("/health");
 
 app.UseAuthorization();
 
