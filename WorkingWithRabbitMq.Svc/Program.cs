@@ -1,3 +1,4 @@
+using WorkingWithRabbitMq.Infra.Services;
 using WorkingWithRabbitMq.Svc.Configurations;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -8,6 +9,7 @@ builder.Services.AddHealthChecks();
 builder.RabbitMqSettings();
 builder.Services.DependencyInjectionSettings();
 builder.Services.ServiceExtensionSettings();
+builder.Services.AddHostedService<RabbitMqConsumer>();
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle

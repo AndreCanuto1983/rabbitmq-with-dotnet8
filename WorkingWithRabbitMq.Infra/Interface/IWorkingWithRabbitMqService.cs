@@ -1,6 +1,6 @@
 ﻿using WorkingWithRabbitMq.Application.Model;
 
-namespace WorkingWithRabbitMq.Application
+namespace WorkingWithRabbitMq.Infra.Interface
 {
     public interface IWorkingWithRabbitMqService
     {

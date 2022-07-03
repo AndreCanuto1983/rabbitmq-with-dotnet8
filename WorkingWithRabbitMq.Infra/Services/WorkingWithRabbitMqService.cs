@@ -4,9 +4,9 @@ using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 using System.Text;
 using System.Text.Json;
-using WorkingWithRabbitMq.Application;
 using WorkingWithRabbitMq.Application.Model;
 using WorkingWithRabbitMq.Application.Model.Configurations;
+using WorkingWithRabbitMq.Infra.Interface;
 
 namespace WorkingWithRabbitMq.Infra.Services
 {
