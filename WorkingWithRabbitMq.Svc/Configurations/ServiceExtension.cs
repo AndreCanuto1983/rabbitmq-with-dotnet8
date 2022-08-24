@@ -8,9 +8,10 @@ namespace WorkingWithRabbitMq.Svc.Configurations
         {
             services.AddControllers()
                     .AddJsonOptions(options =>
-                        options.JsonSerializerOptions.PropertyNameCaseInsensitive = true)
-                    .AddJsonOptions(options =>
-                        options.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingDefault);
+                    {
+                        options.JsonSerializerOptions.PropertyNameCaseInsensitive = true;
+                        options.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingDefault;
+                    });
         }
     }
 }

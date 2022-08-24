@@ -74,7 +74,7 @@ namespace WorkingWithRabbitMq.Infra.Services
 
         public void NotifyUser(RabbitMqTask? message)
         {
-            _logger.LogInformation($"User Information: Msg = {JsonSerializer.Serialize(message)}");
+            _logger.LogInformation("User Information: Message = {message}", JsonSerializer.Serialize(message));
 
             //There are several forms of notification, it will depend on the application and what you need, just implement.
         }

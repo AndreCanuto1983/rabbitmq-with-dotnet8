@@ -14,11 +14,11 @@ namespace WorkingWithRabbitMq.Infra.Services
     {
         private readonly ConnectionFactory _connectionFactory;
         private readonly IOptions<RabbitMqConfiguration> _options;
-        private readonly ILogger<IWorkingWithRabbitMqService> _logger;
+        private readonly ILogger<WorkingWithRabbitMqService> _logger;
 
         public WorkingWithRabbitMqService(
             IOptions<RabbitMqConfiguration> options,
-            ILogger<IWorkingWithRabbitMqService> logger)
+            ILogger<WorkingWithRabbitMqService> logger)
         {
             _options = options;
             _logger = logger;
@@ -64,7 +64,7 @@ namespace WorkingWithRabbitMq.Infra.Services
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "[WorkingWithRabbitMqService][SendMessage]");
+                _logger.LogError("[WorkingWithRabbitMqService][SendMessage] => EXCEPTION: {ex.Message}", ex.Message);
                 throw;
             }
         }
@@ -127,7 +127,7 @@ namespace WorkingWithRabbitMq.Infra.Services
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "[WorkingWithRabbitMqService][GetMessage]");
+                _logger.LogError("[WorkingWithRabbitMqService][GetMessage] => EXCEPTION: {ex.Message}", ex.Message);
                 throw;
             }            
         }

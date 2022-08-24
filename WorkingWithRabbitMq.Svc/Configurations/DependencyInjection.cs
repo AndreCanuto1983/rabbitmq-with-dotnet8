@@ -1,4 +1,4 @@
-﻿using WorkingWithRabbitMq.Application;
+﻿using WorkingWithRabbitMq.Infra.Interface;
 using WorkingWithRabbitMq.Infra.Services;
 
 namespace WorkingWithRabbitMq.Svc.Configurations

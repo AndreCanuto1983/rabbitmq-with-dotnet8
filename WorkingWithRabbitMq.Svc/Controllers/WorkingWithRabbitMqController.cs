@@ -1,5 +1,4 @@
 using Microsoft.AspNetCore.Mvc;
-using WorkingWithRabbitMq.Application;
 using WorkingWithRabbitMq.Application.Model;
 using WorkingWithRabbitMq.Infra.Interface;
 
