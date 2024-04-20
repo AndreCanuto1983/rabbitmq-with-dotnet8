@@ -3,13 +3,9 @@ using System.Text.Json;
 
 namespace WorkingWithRabbitMq.Svc.Configurations.Services
 {
-    public class CustomExceptionMiddleware
+    public class CustomExceptionMiddleware(RequestDelegate requestDelegate)
     {
-        private readonly RequestDelegate _requestDelegate;
-        public CustomExceptionMiddleware(RequestDelegate requestDelegate)
-        {
-            _requestDelegate = requestDelegate;
-        }
+        private readonly RequestDelegate _requestDelegate = requestDelegate;
 
         public async Task InvokeAsync(HttpContext httpContext)
         {

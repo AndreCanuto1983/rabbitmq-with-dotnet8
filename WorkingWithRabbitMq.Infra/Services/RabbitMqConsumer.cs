@@ -46,8 +46,7 @@ namespace WorkingWithRabbitMq.Infra.Services
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            _logger.LogInformation(
-                "Waiting for messages...");
+            _logger.LogInformation("Waiting for messages...");
 
             var consumer = new EventingBasicConsumer(_channel);
 
@@ -66,15 +65,14 @@ namespace WorkingWithRabbitMq.Infra.Services
 
             while (!stoppingToken.IsCancellationRequested)
             {
-                _logger.LogInformation(
-                    $"Active Worker: {DateTime.Now:yyyy-MM-dd HH:mm:ss}");
+                _logger.LogInformation("Active Worker: {DateTime}", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
                 await Task.Delay(_activeWorkerMessageInterval, stoppingToken);
             }
         }
 
         public void NotifyUser(RabbitMqTask? message)
         {
-            _logger.LogInformation("User Information: Message = {message}", JsonSerializer.Serialize(message));
+            _logger.LogInformation("User Information: Message = {Message}", JsonSerializer.Serialize(message));
 
             //There are several forms of notification, it will depend on the application and what you need, just implement.
         }

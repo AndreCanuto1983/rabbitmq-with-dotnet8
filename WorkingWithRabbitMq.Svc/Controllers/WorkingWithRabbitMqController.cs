@@ -6,21 +6,16 @@ namespace ProjectWorkingWithRabbitMq.Controllers
 {
     [ApiController]
     [Route("[controller]")]
-    public class WorkingWithRabbitMqController : ControllerBase
-    {        
-        private readonly IWorkingWithRabbitMqService _workingWithRabbitMqService;        
-
-        public WorkingWithRabbitMqController(IWorkingWithRabbitMqService workingWithRabbitMqService)
-        {            
-            _workingWithRabbitMqService = workingWithRabbitMqService;
-        }
+    public class WorkingWithRabbitMqController(IWorkingWithRabbitMqService workingWithRabbitMqService) : ControllerBase
+    {
+        private readonly IWorkingWithRabbitMqService _workingWithRabbitMqService = workingWithRabbitMqService;
 
         [HttpPost]
         [ProducesResponseType(typeof(IActionResult), StatusCodes.Status201Created)]
         [ProducesResponseType(typeof(IActionResult), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public IActionResult Set(RabbitMqTask task)
-        {            
+        {
             if (task.IsValid())
                 return BadRequest();
 

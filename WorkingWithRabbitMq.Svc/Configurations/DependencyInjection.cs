@@ -6,8 +6,8 @@ namespace WorkingWithRabbitMq.Svc.Configurations
     public static class DependencyInjection
     {
         public static void DependencyInjectionSettings(this IServiceCollection services)
-        {            
-            services.AddScoped<IWorkingWithRabbitMqService, WorkingWithRabbitMqService>();         
+        {
+            services.AddScoped<IWorkingWithRabbitMqService, WorkingWithRabbitMqService>();
         }
     }
 }

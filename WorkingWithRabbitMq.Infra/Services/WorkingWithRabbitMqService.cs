@@ -35,36 +35,33 @@ namespace WorkingWithRabbitMq.Infra.Services
         {
             try
             {
-                using (var connection = _connectionFactory.CreateConnection())
-                {
-                    using (var channel = connection.CreateModel())
-                    {
-                        channel.QueueDeclare(queue: _options.Value.Queue,
-                                             durable: true,
-                                             exclusive: false,
-                                             autoDelete: false,
-                                             arguments: null);
+                using var connection = _connectionFactory.CreateConnection();
+                using var channel = connection.CreateModel();
 
-                        channel.BasicQos(prefetchSize: 0, prefetchCount: 1, global: false);
+                channel.QueueDeclare(queue: _options.Value.Queue,
+                                     durable: true,
+                                     exclusive: false,
+                                     autoDelete: false,
+                                     arguments: null);
 
-                        var stringfiedMessage = JsonSerializer.Serialize(task);
+                channel.BasicQos(prefetchSize: 0, prefetchCount: 1, global: false);
 
-                        var bytesMessage = Encoding.UTF8.GetBytes(stringfiedMessage);
+                var stringfiedMessage = JsonSerializer.Serialize(task);
 
-                        var properties = channel.CreateBasicProperties();
-                        properties.Persistent = true;
+                var bytesMessage = Encoding.UTF8.GetBytes(stringfiedMessage);
 
-                        channel.BasicPublish(
-                            exchange: "",
-                            routingKey: _options.Value.Queue,
-                            basicProperties: properties,
-                            body: bytesMessage);
-                    }
-                }
+                var properties = channel.CreateBasicProperties();
+                properties.Persistent = true;
+
+                channel.BasicPublish(
+                    exchange: "",
+                    routingKey: _options.Value.Queue,
+                    basicProperties: properties,
+                    body: bytesMessage);
             }
             catch (Exception ex)
             {
-                _logger.LogError("[WorkingWithRabbitMqService][SendMessage] => EXCEPTION: {ex.Message}", ex.Message);
+                _logger.LogError(ex, "[WorkingWithRabbitMqService][SendMessage] => EXCEPTION: {Ex}", ex.Message);
                 throw;
             }
         }
@@ -73,63 +70,56 @@ namespace WorkingWithRabbitMq.Infra.Services
         {
             try
             {
-                using (var connection = _connectionFactory.CreateConnection())
+                using var connection = _connectionFactory.CreateConnection();
+                using var channel = connection.CreateModel();
+
+                channel.QueueDeclare(queue: _options.Value.Queue,
+                                     durable: true,
+                                     exclusive: false,
+                                     autoDelete: false,
+                                     arguments: null);
+
+                channel.BasicQos(0, 1, false); //Ask the rabbitMq to deliver only one message per call
+
+                var consumer = new EventingBasicConsumer(channel);
+
+                var rabbitMqTask = new RabbitMqTask();
+
+                string message = null;
+
+                consumer.Received += (model, ea) =>
                 {
-                    using (var channel = connection.CreateModel())
+                    try
                     {
-                        channel.QueueDeclare(queue: _options.Value.Queue,
-                                             durable: true,
-                                             exclusive: false,
-                                             autoDelete: false,
-                                             arguments: null);
+                        message = Encoding.UTF8.GetString(ea.Body.ToArray());
 
-                        channel.BasicQos(0, 1, false); //Ask the rabbitMq to deliver only one message per call
+                        var rabbitMqTaskDeserialized = JsonSerializer.Deserialize<RabbitMqTask>(message);
 
-                        var consumer = new EventingBasicConsumer(channel);
+                        rabbitMqTask.Id = rabbitMqTaskDeserialized.Id;
+                        rabbitMqTask.Name = rabbitMqTaskDeserialized.Name;
+                        rabbitMqTask.Phone = rabbitMqTaskDeserialized.Phone;
 
-                        var rabbitMqTask = new RabbitMqTask();
-
-                        string? message = null;
-
-                        consumer.Received += (model, ea) =>
-                        {
-                            try
-                            {
-                                message = Encoding.UTF8.GetString(ea.Body.ToArray());
-
-                                var rabbitMqTaskDeserialized = JsonSerializer.Deserialize<RabbitMqTask>(message);
-
-                                rabbitMqTask.Id = rabbitMqTaskDeserialized.Id;
-                                rabbitMqTask.Name = rabbitMqTaskDeserialized.Name;
-                                rabbitMqTask.Phone = rabbitMqTaskDeserialized.Phone;
-
-                                if (message != null)
-                                    channel.BasicAck(ea.DeliveryTag, false);
-                            }
-                            catch (Exception ex)
-                            {
-                                channel.BasicNack(ea.DeliveryTag, false, true);
-                                _logger.LogError(ex, @$"[WorkingWithRabbitMqService][GetMessage][consumer.Received] => 
-                                        DeliveryTag: {ea.DeliveryTag}, 
-                                        ConsumerTag: {ea.ConsumerTag}, 
-                                        Body: {ea.Body}, 
-                                        Message: {message}");
-                            }
-                        };
-
-                        channel.BasicConsume(queue: _options.Value.Queue,
-                                             autoAck: false,
-                                             consumer: consumer);
-
-                        return rabbitMqTask;
+                        if (message != null)
+                            channel.BasicAck(ea.DeliveryTag, false);
                     }
-                }
+                    catch (Exception ex)
+                    {
+                        channel.BasicNack(ea.DeliveryTag, false, true);
+                        _logger.LogError(ex, "[WorkingWithRabbitMqService][GetMessage][consumer.Received] => DeliveryTag: {DeliveryTag}, ConsumerTag: {ConsumerTag}, Body: {Body}, Message: {Message}", ea.DeliveryTag, ea.ConsumerTag, ea.Body, ex.Message);
+                    }
+                };
+
+                channel.BasicConsume(queue: _options.Value.Queue,
+                                     autoAck: false,
+                                     consumer: consumer);
+
+                return rabbitMqTask;
             }
             catch (Exception ex)
             {
-                _logger.LogError("[WorkingWithRabbitMqService][GetMessage] => EXCEPTION: {ex.Message}", ex.Message);
+                _logger.LogError(ex, "[WorkingWithRabbitMqService][GetMessage] => EXCEPTION: {Message}", ex.Message);
                 throw;
-            }            
+            }
         }
     }
 }

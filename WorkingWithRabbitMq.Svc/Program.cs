@@ -14,15 +14,11 @@ builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
-    app.UseCustomExceptionMiddleware();
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
+app.UseCustomExceptionMiddleware();
+app.UseSwagger();
+app.UseSwaggerUI();
 
-app.MapHealthChecks("/health");
+app.MapHealthChecks("/healthcheck");
 app.UseAuthorization();
 app.MapControllers();
 app.Run();
