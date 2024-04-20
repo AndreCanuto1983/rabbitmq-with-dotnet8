@@ -62,7 +62,6 @@ namespace WorkingWithRabbitMq.Infra.Services
             catch (Exception ex)
             {
                 _logger.LogError(ex, "[WorkingWithRabbitMqService][SendMessage] => EXCEPTION: {Ex}", ex.Message);
-                throw;
             }
         }
 
@@ -118,7 +117,7 @@ namespace WorkingWithRabbitMq.Infra.Services
             catch (Exception ex)
             {
                 _logger.LogError(ex, "[WorkingWithRabbitMqService][GetMessage] => EXCEPTION: {Message}", ex.Message);
-                throw;
+                return new RabbitMqTask();
             }
         }
     }

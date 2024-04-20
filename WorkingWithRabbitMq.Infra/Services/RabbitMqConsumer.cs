@@ -15,7 +15,6 @@ namespace WorkingWithRabbitMq.Infra.Services
     {
         private readonly int _activeWorkerMessageInterval;
         private readonly RabbitMqConfiguration _configuration;
-        private readonly IConnection _connection;
         private readonly IModel _channel;
         private readonly ILogger<RabbitMqConsumer> _logger;
 
@@ -34,7 +33,7 @@ namespace WorkingWithRabbitMq.Infra.Services
                 HostName = _configuration.Host
             };
 
-            _connection = factory.CreateConnection();
+            IConnection _connection = factory.CreateConnection();
             _channel = _connection.CreateModel();
             _channel.QueueDeclare(
                         queue: _configuration.Queue,
@@ -70,7 +69,7 @@ namespace WorkingWithRabbitMq.Infra.Services
             }
         }
 
-        public void NotifyUser(RabbitMqTask? message)
+        public void NotifyUser(RabbitMqTask message)
         {
             _logger.LogInformation("User Information: Message = {Message}", JsonSerializer.Serialize(message));
 
